@@ -1,0 +1,19 @@
+//XML File
+<Button
+        android:id="@+id/any_button_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="My Button"
+        />
+        
+        
+//Java File
+Button any_button;
+any_button = (Button) findViewById(R.id.any_button_id);
+
+any_button.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                //if you want to open new activity
+                startActivity(new Intent(MainActivity.this, MyOtherActivity.class));
+            }
+        });
