@@ -1,0 +1,20 @@
+private void showAlert() {
+        AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+        alertDialog.setTitle("Alert");
+        alertDialog.setMessage("This is our testing alert text.");
+        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "DONT ALLOW",new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        Toast.makeText(MainActivity.this, "You Checked to Don't Allow!",Toast.LENGTH_LONG).show();
+                        //finish();
+                    }
+                });
+        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "ALLOW",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        Toast.makeText(MainActivity.this, "You Checked to Allow!",Toast.LENGTH_LONG).show();
+                    }
+                });
+        alertDialog.show();
+    }
