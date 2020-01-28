@@ -1,0 +1,125 @@
+//activity_xml
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.admin.fragmentapp.MainActivity">
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="First Fragment"
+        android:id="@+id/first_fragment_btn"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Second Fragment"
+        android:id="@+id/first_fragment_btn2"
+        android:layout_below="@+id/first_fragment_btn"/>
+
+    <FrameLayout
+        android:id="@+id/first_fragment1_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <FrameLayout
+        android:id="@+id/first_fragment2_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+
+</RelativeLayout>
+
+//MainActivity.java
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+
+public class MainActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        final Button first_fragment_btn = (Button) findViewById(R.id.first_fragment_btn);
+        final Button first_fragment_btn2 = (Button) findViewById(R.id.first_fragment_btn2);
+
+        first_fragment_btn.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                first_fragment_btn.setVisibility(View.GONE);
+                first_fragment_btn2.setVisibility(View.GONE);
+                fragment1 fragment1 = new fragment1();
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.add(R.id.first_fragment1_id, fragment1, "fragment");
+                fragmentTransaction.commit();
+            }
+        });
+
+
+
+        first_fragment_btn2.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                first_fragment_btn.setVisibility(View.GONE);
+                first_fragment_btn2.setVisibility(View.GONE);
+                Fragment_new1 Fragment_new1 = new Fragment_new1();
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.add(R.id.first_fragment2_id, Fragment_new1, "fragment");
+                fragmentTransaction.commit();
+            }
+        });
+    }
+}
+
+
+
+//fragment.java
+package com.example.admin.fragmentapp;
+
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+public class Your_Fragment_JAVA_File_Name extends Fragment {
+
+    public Your_Fragment_JAVA_File_Name() {
+        // Required empty public constructor
+    }
+
+    public static fragment1 newInstance(String param1, String param2) {
+        fragment1 fragment = new fragment1();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+
+        }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+//        return inflater.inflate(R.layout.fragment_fragment1, container, false);
+        View view=  inflater.inflate(R.layout.Your_Fragment_Layout_Name, container, false);
+        return  view;
+    }
+}
