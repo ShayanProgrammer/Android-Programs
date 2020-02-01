@@ -1,0 +1,30 @@
+//Activity Code Get Data(you can also use it in button click event) 
+ protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        
+        final EditText username = (EditText) findViewById(R.id.username_field);
+        final EditText password = (EditText) findViewById(R.id.password_field);
+      
+        Bundle bundle = new Bundle();
+        bundle.putString("username", username.getText().toString());
+        bundle.putString("password", password.getText().toString());
+        fragment1 fragment1 = new fragment1();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.first_fragment1_id, fragment1, "fragment");
+        fragment1.setArguments(bundle);
+        fragmentTransaction.commit(); 
+ }
+
+//Fragment Code (use it in onCreateView to set_data)
+EditText username = (EditText) view.findViewById(R.id.username_field_f);//Find textview Id
+EditText password = (EditText) view.findViewById(R.id.password_field_f);//Find textview Id
+
+if (getArguments() != null) {
+    String getUsername = getArguments().getString("username");
+    username.setText(getUsername);
+
+    String getPassword = getArguments().getString("password");
+    password.setText(getPassword);
+}
