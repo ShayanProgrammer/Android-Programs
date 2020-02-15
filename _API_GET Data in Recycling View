@@ -1,0 +1,340 @@
+//Manifest
+<uses-permission android:name="android.permission.INTERNET"/>
+
+
+//Gradle Implementation
+implementation  'com.android.support:recyclerview-v7:27.1.1'
+implementation 'com.android.volley:volley:1.0.0'
+
+
+//Main Activity
+import android.app.ProgressDialog;
+import android.graphics.Movie;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class MainActivity extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener {
+
+
+
+    private RequestQueue mRequestQueue;
+    private StringRequest mStringRequest;
+    private LinearLayoutManager linearLayoutManager;
+    private DividerItemDecoration dividerItemDecoration;
+    private List<Property> propertyList;
+    private RecyclerView.Adapter adapter;
+    RecyclerView recyclerView;
+    private String url = "https://demo.lawsyst.com/mobile-app/json-call/json_matter_listing.php";
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // set up the RecyclerView
+         recyclerView = findViewById(R.id.property_view);
+
+        propertyList = new ArrayList<>();
+        adapter = new MyRecyclerViewAdapter(getApplicationContext(),propertyList);
+
+        linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), linearLayoutManager.getOrientation());
+
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(linearLayoutManager);
+        recyclerView.addItemDecoration(dividerItemDecoration);
+        recyclerView.setAdapter(adapter);
+
+
+        getData();
+
+    }
+
+    private void getData() {
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Loading...");
+        progressDialog.show();
+
+
+        //RequestQueue initialized
+        mRequestQueue = Volley.newRequestQueue(this);
+
+        //String Request initialized
+        mStringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+
+//                Toast.makeText(getApplicationContext(),"Response :" + response.toString(), Toast.LENGTH_LONG).show();//display the response on screen
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    JSONArray jsonArray = jsonObject.getJSONArray("data");
+                    for (int ii = 0; ii < jsonArray.length(); ii++) {
+                        try {
+                            JSONObject jsonObject2 = jsonArray.getJSONObject(ii);
+                            Property property = new Property();
+                            property.setLandlord_id(jsonObject2.getInt("landlord_id"));
+                            property.setMattername(jsonObject2.getString("mattername"));
+                            property.setMatternumber(jsonObject2.getInt("matternumber"));
+                            propertyList.add(property);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+//                            adapter.notifyDataSetChanged();
+                            progressDialog.dismiss();
+                        }
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                adapter = new MyRecyclerViewAdapter(getApplicationContext(),propertyList);
+                recyclerView.setHasFixedSize(true);
+                recyclerView.setLayoutManager(linearLayoutManager);
+                recyclerView.addItemDecoration(dividerItemDecoration);
+                recyclerView.setAdapter(adapter);
+            }
+        },  new Response.ErrorListener()
+        {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // TODO Auto-generated method stub
+                Log.d("ERROR","error => "+error.toString());
+            }
+        }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("token", "f0e1ec54b0aed79ffa9123d5395d7cc0692ef3f20bf6eeb534a690e4e7ddc087");
+                params.put("Accept-Language", "fr");
+                return params;
+            }
+        };
+        mRequestQueue.add(mStringRequest);
+
+    }
+
+
+    @Override
+    public void onItemClick(View view, int position) {
+//        Toast.makeText(this, "You clicked " + adapter.getItemCount(position) + " on row number " + position, Toast.LENGTH_SHORT).show();
+    }
+}
+
+//MyRecylingViewAdapter.java
+
+import android.content.Context;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import java.util.List;
+
+//import androidx.recyclerview.widget.RecyclerView;
+
+/**
+ * Created by admin on 2/1/2020.
+ */
+
+public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.ViewHolder> {
+
+    private List<Property> mData;
+    private LayoutInflater mInflater;
+    private ItemClickListener mClickListener;
+
+    // data is passed into the constructor
+    MyRecyclerViewAdapter(Context context, List<Property> data) {
+        this.mInflater = LayoutInflater.from(context);
+        this.mData = data;
+
+    }
+
+    // inflates the row layout from xml when needed
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = mInflater.inflate(R.layout.recyclerview_row, parent, false);
+        return new ViewHolder(view);
+    }
+
+    // binds the data to the TextView in each row
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+//        String animal = mData.get(position);
+//        holder.myTextView.setText(animal);
+
+        Property property = mData.get(position);
+
+        Log.d("Adpater_1" , ""+property.getLandlord_id()   + "                 "+property.getMattername()    + "                 "+property.getMatternumber());
+
+        holder.landlordid.setText(String.valueOf(property.getLandlord_id()));
+        holder.mattername.setText(property.getMattername());
+        holder.matternumber.setText(""+property.getMatternumber());
+    }
+
+    // total number of rows
+    @Override
+    public int getItemCount() {
+        return mData.size();
+    }
+
+    // stores and recycles views as they are scrolled off screen
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        TextView myTextView;
+        TextView landlordid;
+        TextView mattername;
+        TextView matternumber;
+
+        ViewHolder(View itemView) {
+            super(itemView);
+            landlordid = itemView.findViewById(R.id.landlordid);
+            mattername = itemView.findViewById(R.id.mattername);
+            matternumber = itemView.findViewById(R.id.matternumber);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            if (mClickListener != null) mClickListener.onItemClick(view, getAdapterPosition());
+        }
+    }
+
+    // allows clicks events to be caught
+    void setClickListener(ItemClickListener itemClickListener) {
+        this.mClickListener = itemClickListener;
+    }
+
+
+    // parent activity will implement this method to respond to click events
+    public interface ItemClickListener {
+        void onItemClick(View view, int position);
+    }
+
+}
+
+
+//Property.java (Class)
+/**
+ * Created by admin on 2/8/2020.
+ */
+
+public class Property {
+
+    public int landlord_id;
+    public String mattername;
+    public int matternumber;
+
+    public Property() {
+
+    }
+
+    public Property(int landlord_id, String mattername, int matternumber) {
+        this.landlord_id = landlord_id;
+        this.mattername = mattername;
+        this.matternumber = matternumber;
+    }
+
+    public int getLandlord_id() {
+        return landlord_id;
+    }
+
+    public void setLandlord_id(int landlord_id) {
+        this.landlord_id = landlord_id;
+    }
+
+    public String getMattername() {
+        return mattername;
+    }
+
+    public void setMattername(String mattername) {
+        this.mattername = mattername;
+    }
+
+    public int getMatternumber() {
+        return matternumber;
+    }
+
+    public void setMatternumber(int matternumber) {
+        this.matternumber = matternumber;
+    }
+}
+
+
+//activity_main.xml
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.admin.recyclingviewtask.MainActivity">
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/property_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+</android.support.constraint.ConstraintLayout>
+
+
+//RecyclingView.XML
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:id="@+id/linear"
+    android:layout_height="wrap_content">
+
+
+    <TextView
+        android:id="@+id/landlordid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NAME2"
+        android:textSize="20sp"
+        />
+
+    <TextView
+        android:id="@+id/mattername"
+        android:layout_width="wrap_content"
+        android:layout_below="@id/landlordid"
+        android:layout_height="wrap_content"
+        android:text="NAM3"
+        android:textSize="20sp"
+        />
+
+    <TextView
+        android:id="@+id/matternumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NAM4"
+        android:layout_below="@id/mattername"
+        android:textSize="20sp"
+        />
+
+</RelativeLayout>
+
